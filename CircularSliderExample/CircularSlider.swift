@@ -20,7 +20,7 @@ class CircularSlider: UIControl {
     @IBInspectable open var currentValue: Double = 0.0 {
         didSet {
             if currentValue > maximumValue {
-                currentValue = maximumValue
+                currentValue = maximumValue - 0.0001
             } else if currentValue < minimumValue {
                 currentValue = minimumValue
             }
@@ -39,7 +39,8 @@ class CircularSlider: UIControl {
         }
     }
     
-    fileprivate var fixedAngle: Double = 0.0
+    
+    fileprivate var lastAngle: Double = 0.0
     fileprivate var centerPoint: CGPoint {
         get {
             return CGPoint(x: self.frame.size.width / 2.0, y: self.frame.size.height / 2.0)
@@ -169,14 +170,25 @@ class CircularSlider: UIControl {
     }
     
     override func point(inside point: CGPoint, with event: UIEvent?) -> Bool {
-        return self.bounds.contains(point);
+        //return self.bounds.contains(point);
+        var minimumAngle = (currentValue / maximumValue) * 360 - 20.0
+        if minimumAngle < 0 {
+            minimumAngle = 360 + minimumAngle
+        }
+        
+        var maximumAngle = (currentValue / maximumValue) * 360 + 20.0
+        if maximumAngle > 359.9999 {
+            maximumAngle = maximumAngle - 359.9999
+        }
+        let touchedAngle = floor(angleFromNorth(centerPoint, point, false))
+        return  touchedAngle > minimumAngle || touchedAngle < maximumAngle
     }
     
     // MARK: - UIControl methods
     
     override func beginTracking(_ touch: UITouch, with event: UIEvent?) -> Bool {
         super.beginTracking(touch, with: event)
-        
+        lastAngle = floor(angleFromNorth(centerPoint, touch.location(in: self), false))
         return true
     }
     
@@ -192,12 +204,16 @@ class CircularSlider: UIControl {
     
     fileprivate func moveHandle(_ point:CGPoint) {
         let currentAngle = floor(angleFromNorth(centerPoint, point, false))
-        print(currentAngle)
-        currentValue = self.valueFrom(currentAngle)
-        if currentAngle >= 359.0 {
-            
+        var angleInterval = abs(currentAngle - lastAngle)
+        var rotationDirection = currentAngle - lastAngle >= 0 ? 1.0 : -1.0
+        if 360.0 - 2 * angleInterval < 0 {
+            angleInterval = 360 - angleInterval
+            rotationDirection *= -1.0
         }
         
+        currentValue += self.valueFrom(angleInterval) * rotationDirection
+        
+        lastAngle = currentAngle
         self.setNeedsDisplay()
     }
     
