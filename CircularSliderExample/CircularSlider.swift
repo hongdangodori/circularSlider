@@ -1,23 +1,25 @@
-//
-//  CircularSlider.swift
-//  CircularSlider
-//
-//  Created by Coupang on 2017. 5. 19..
-//  Copyright © 2017년 Coupang. All rights reserved.
-//
-
 import UIKit
 
 enum SliderHandleType {
     case transparentWhiteColor
 }
+struct Constants{
+    static var minimumValue: Double = 0.0
+    static var maximumValue:Double = 100.0
+    static var currentValue:Double = 0.0
+    static var handleRadius:CGFloat = 0.0
+    static var sliderLineWidth:CGFloat = 1.0
+    static var lastAngle:Double = 0.0
+    static let circleRadius:CGFloat = 0.0
+
+}
 
 @IBDesignable
 class CircularSlider: UIControl {
     
-    @IBInspectable open var minimumValue: Double = 0.0
-    @IBInspectable open var maximumValue: Double = 100.0
-    @IBInspectable open var currentValue: Double = 0.0 {
+    @IBInspectable open var minimumValue: Double = Constants.minimumValue
+    @IBInspectable open var maximumValue: Double = Constants.maximumValue
+    @IBInspectable open var currentValue: Double = Constants.currentValue{
         didSet {
             if currentValue > maximumValue {
                 currentValue = maximumValue - 0.0001
@@ -31,7 +33,7 @@ class CircularSlider: UIControl {
         }
     }
     
-    @IBInspectable open var handleRadius: CGFloat = 0.0 {
+    @IBInspectable open var handleRadius: CGFloat = Constants.handleRadius {
         didSet {
             if handleRadius * 2 < sliderLineWidth {
                 handleRadius = sliderLineWidth / 2.0
@@ -40,14 +42,16 @@ class CircularSlider: UIControl {
     }
     
     
-    fileprivate var lastAngle: Double = 0.0
+    fileprivate var lastAngle: Double = Constants.lastAngle
     fileprivate var centerPoint: CGPoint {
         get {
-            return CGPoint(x: self.frame.size.width / 2.0, y: self.frame.size.height / 2.0)
+            let xPosition = self.frame.size.width / 2.0
+            let yPosition = self.frame.size.height / 2.0
+            return CGPoint(x: xPosition, y: yPosition)
         }
     }
     
-    fileprivate var sliderLineWidth: CGFloat = 1.0
+    fileprivate var sliderLineWidth: CGFloat = Constants.sliderLineWidth
     fileprivate var sliderLineRadiusDisplayment: CGFloat = 0.0
     fileprivate var unfilledColor: UIColor = UIColor.black
     fileprivate var filledColor: UIColor = UIColor.white
@@ -68,7 +72,7 @@ class CircularSlider: UIControl {
         }
     }
     
-    fileprivate var circleRadius: CGFloat = 0.0
+    fileprivate var circleRadius: CGFloat = Constants.circleRadius
     
     @IBInspectable open var radius: CGFloat {
         set {
